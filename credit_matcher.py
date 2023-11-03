@@ -1,18 +1,34 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
-score = input("Enter credit score (N/A if none): ")
-if not score.isdigit():
-    score = "0"
-score = int(score)
+df = pd.read_csv("card_terms_cleaned.csv", sep = ",", usecols=[
+    "APR Credit 1",
+    "Intro APR Credit 1",
+    "Annualized Periodic Fees",
+    "Targeted Credit Tiers",
+    "Provider",
+    "Product Name"
+])
+df.drop(df[~df["Targeted Credit Tiers"].str.contains("1")].index, inplace=True)
 
-scorecat = ""
-if score <= 619:
-    scorecat = "1"
-elif score <= 719:
-    scorecat = "2"
-else:
-    scorecat = "3"
+print(df.loc[df["APR Credit 1"] == df["APR Credit 1"].min()])
 
-df = pd.read_csv("card_terms_cleaned.csv", sep = ",", usecols=["Provider", "Product Name", "APR Credit " + scorecat, "Annualized Periodic Fees"])
-df.rename(columns = {"APR Credit " + scorecat: "APR"}, inplace=True)
-print(df[df["APR"] == df["APR"].min()].to_string())
+"""
+fig = plt.figure()
+plot = fig.add_subplot(projection='3d')
+plot.scatter(df["APR Credit 1"], df["Intro APR Credit 1"], df["Annualized Periodic Fees"])
+plot.set_xlabel('APR')
+plot.set_ylabel('Intro APR')
+plot.set_zlabel('Fees')
+plt.xlim(0, 50)
+plt.ylim(0, 50)
+"""
+
+fig = plt.figure()
+plot = fig.add_subplot()
+plot.scatter(df["APR Credit 1"], df["Annualized Periodic Fees"])
+plot.set_xlabel('APR')
+plot.set_ylabel('Fees')
+plt.xlim(0, 50)
+
+plt.show()
