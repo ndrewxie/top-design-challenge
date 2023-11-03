@@ -92,4 +92,14 @@ for period in fee_multipliers:
     df["Annualized Periodic Fees"] = df["Annualized Periodic Fees"] + df[period + " Fee"] * fee_multipliers[period]
     df.drop([period + " Fee"], axis=1, inplace=True)
 
+df.rename(columns = {
+    "Amount (Dollars) - Late Payment Fee": "Late Fee",
+    "Late Fee Six Month Billing Cycle": "Very Late Fee",
+}, inplace=True)
+df.drop(["Late Fees?", "Late Fee Types", "Late Fee Policy Details", "Fee Varies?.5", "Minimum.5", "Maximum.5", "Fee Explanation.5"], axis=1, inplace=True)
+df.loc[df["Late Fee"].isnull(), "Late Fee"] = "$0.00"
+df.loc[df["Very Late Fee"].isnull(), "Very Late Fee"] = "$0.00"
+df["Late Fee"] = df["Late Fee"].str.lstrip("$").astype('float')
+df["Very Late Fee"] = df["Very Late Fee"].str.lstrip("$").astype('float')
+
 df.to_csv("card_terms_cleaned.csv")
